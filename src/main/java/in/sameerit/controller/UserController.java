@@ -46,7 +46,7 @@ public class UserController {
 	private MailService mailService;
 	
 	
-	@GetMapping({ "/", "" })
+	@GetMapping({ "/register" })
 	public String getRegistrationForm(Model model) {
 		model.addAttribute("user", new UserDTO());
 		model.addAttribute("countries", countryRepo.findAll());
