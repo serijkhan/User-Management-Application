@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Registration</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+body {
+	background: linear-gradient(135deg, #e0f7fa, #80cbc4); /* Gradient background */
+	min-height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.login-container {
+	max-width: 600px;
+	width: 100%;
+	padding: 30px;
+	background-color: #ffffff;
+	border-radius: 20px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+	animation: fadeIn 0.7s ease-in-out;
+}
+
+h2 {
+	font-size: 32px;
+	color: #00695c;
+	font-weight: 700;
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.form-label {
+	color: #004d40;
+	font-weight: 600;
+}
+
+.form-control, .form-select {
+	border-radius: 8px;
+	border: 2px solid #b2dfdb;
+	padding: 12px;
+	font-size: 16px;
+	transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+	border-color: #004d40;
+	box-shadow: 0 0 6px rgba(0, 77, 64, 0.4);
+}
+
+.btn-primary {
+	background-color: #00897b;
+	border: none;
+	padding: 15px;
+	border-radius: 8px;
+	font-size: 18px;
+	font-weight: 600;
+	transition: background-color 0.3s ease, transform 0.2s;
+	width: 100%;
+	cursor: pointer;
+}
+
+.btn-primary:hover {
+	background-color: #00695c;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 77, 64, 0.3);
+}
+
+.alert {
+	font-weight: 600;
+}
+
+.text-center small a {
+	color: #004d40;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.text-center small a:hover {
+	text-decoration: underline;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="login-container">
+					<h2>Register Here</h2>
+					
+					<div th:if="${emailMsg}" class="alert alert-danger text-center"
+						role="alert" th:text="${emailMsg}"></div>
+					<div th:if="${sucMsg}" class="alert alert-success text-center"
+						role="alert" th:text="${sucMsg}"></div>
+					
+					<form id="registrationForm" th:action="@{/insert}" th:object="${user}" method="post">
+						<div class="mb-3">
+							<label for="name" class="form-label">Name</label>
+							<input type="text" id="name" name="name" th:field="*{name}"
+								class="form-control" placeholder="Enter your full name" required>
+						</div>
+						
+						<div class="mb-3">
+							<label for="email" class="form-label">Email</label>
+							<input type="email" id="email" name="email" th:field="*{email}"
+								class="form-control" placeholder="Enter your email address" required>
+						</div>
+						
+						<div class="mb-3">
+							<label for="phno" class="form-label">Phone Number</label>
+							<input type="text" id="phno" name="phno" th:field="*{phno}"
+								class="form-control" placeholder="Enter your phone number" required>
+						</div>
+						
+						<div class="mb-3">
+							<label for="countrySelect" class="form-label">Country</label>
+							<select id="countrySelect" name="country" th:field="*{countryId}"
+								class="form-select" required>
+								<option value="" disabled="disabled">-Select-</option>
+								<option th:each="country : ${countries}" th:value="${country.id}"
+									th:text="${country.name}"></option>
+							</select>
+						</div>
+						
+						<div class="mb-3">
+							<label for="stateSelect" class="form-label">State</label>
+							<select id="stateSelect" name="state" th:field="*{stateId}"
+								class="form-select" required>
+								<option value="" disabled="disabled">-Select-</option>
+							</select>
+						</div>
+						
+						<div class="mb-3">
+							<label for="citySelect" class="form-label">City</label>
+							<select id="citySelect" name="city" th:field="*{cityId}"
+								class="form-select" required>
+								<option value="" disabled="disabled">-Select-</option>
+							</select>
+						</div>
+						
+						<div>
+							<button type="submit" class="btn btn-primary">Sign-Up</button>
+						</div>
+					</form>
+					
+					<div class="text-center mt-3">
+						<small style="font-size: 20px; font-weight: bold; color: #004d40;">Have an account? <a th:href="@{/login}" style="font-size: 20px; font-weight: bold; color: #008080; text-decoration: none;">Sign in</a></small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		$(document).ready(function () {
+			$('#countrySelect').change(function () {
+				const countryId = $(this).val();
+				$('#stateSelect').empty().append(new Option("-Select-", "").setAttribute('disabled', true));
+				$('#citySelect').empty().append(new Option("-Select-", "").setAttribute('disabled', true));
+				if (countryId) {
+					$.get(`/states/${countryId}`, function (data) {
+						data.forEach(state => {
+							$('#stateSelect').append(new Option(state.name, state.id));
+						});
+					});
+				}
+			});
+
+			$('#stateSelect').change(function () {
+				const stateId = $(this).val();
+				$('#citySelect').empty().append(new Option("-Select-", "").setAttribute('disabled', true));
+				if (stateId) {
+					$.get(`/cities/${stateId}`, function (data) {
+						data.forEach(city => {
+							$('#citySelect').append(new Option(city.name, city.id));
+						});
+					});
+				}
+			});
+		});
+	</script>
+	
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
